@@ -2148,7 +2148,17 @@ var User = function (_super) {
   __extends(User, _super);
 
   function User() {
-    return _super !== null && _super.apply(this, arguments) || this;
+    var _this = _super !== null && _super.apply(this, arguments) || this;
+
+    _this.setRandomAge = function () {
+      var age = Math.round(Math.random() * 100);
+
+      _this.set({
+        age: age
+      });
+    };
+
+    return _this;
   }
 
   User.buildUser = function (attrs) {
@@ -2188,23 +2198,99 @@ exports.User = User; // get on(){
 //             this.trigger('error')
 //         })
 // }
-},{"./Eventing":"src/models/Eventing.ts","./Sync":"src/models/Sync.ts","./Attributes":"src/models/Attributes.ts","./Model":"src/models/Model.ts"}],"src/index.ts":[function(require,module,exports) {
+},{"./Eventing":"src/models/Eventing.ts","./Sync":"src/models/Sync.ts","./Attributes":"src/models/Attributes.ts","./Model":"src/models/Model.ts"}],"src/views/UserForm.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.UserForm = void 0;
+
+var UserForm = function () {
+  function UserForm(parent, model) {
+    var _this = this;
+
+    this.parent = parent;
+    this.model = model;
+
+    this.onSetAgeClick = function () {
+      _this.model.setRandomAge();
+    };
+
+    this.bindModel();
+  }
+
+  UserForm.prototype.bindModel = function () {
+    var _this = this;
+
+    this.model.on('change', function () {
+      _this.render();
+    });
+  };
+
+  UserForm.prototype.eventsMap = function () {
+    return {
+      "click:.set-age": this.onSetAgeClick
+    };
+  };
+
+  UserForm.prototype.template = function () {
+    return "<div>\n            <h1>User Form</h1>\n            <div>User Name:" + this.model.get('name') + "</div>\n            <div>User Age:" + this.model.get('age') + "</div>\n            <input/>\n            <button >Click here</button>\n            <button class=\"set-age\">Set Random Age</button>\n        </div>\n        ";
+  };
+
+  UserForm.prototype.bindEvents = function (fragment) {
+    var eventsMap = this.eventsMap();
+
+    var _loop_1 = function _loop_1(eventKey) {
+      var _a = eventKey.split(':'),
+          eventName = _a[0],
+          selector = _a[1];
+
+      fragment.querySelectorAll(selector).forEach(function (el) {
+        el.addEventListener(eventName, eventsMap[eventKey]);
+      });
+    };
+
+    for (var eventKey in eventsMap) {
+      _loop_1(eventKey);
+    }
+  };
+
+  UserForm.prototype.render = function () {
+    this.parent.innerHTML = '';
+    var templateElement = document.createElement("template");
+    templateElement.innerHTML = this.template();
+    this.bindEvents(templateElement.content);
+    this.parent.append(templateElement.content);
+  };
+
+  return UserForm;
+}();
+
+exports.UserForm = UserForm;
+},{}],"src/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var User_1 = require("./models/User");
+var User_1 = require("./models/User"); // const user = User.buildUser({id:1})
+// user.on('change',()=>{
+//     console.log('changed')
+// })
+// user.fetch()
+
+
+var UserForm_1 = require("./views/UserForm");
 
 var user = User_1.User.buildUser({
-  id: 1
+  name: 'John',
+  age: 20
 });
-user.on('change', function () {
-  console.log('changed');
-});
-user.fetch();
-},{"./models/User":"src/models/User.ts"}],"../../../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+var userForm = new UserForm_1.UserForm(document.querySelector('#root'), user);
+userForm.render();
+},{"./models/User":"src/models/User.ts","./views/UserForm":"src/views/UserForm.ts"}],"../../../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -2232,7 +2318,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61704" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56662" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
